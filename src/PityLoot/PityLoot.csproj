@@ -7,7 +7,7 @@
     <AssemblyName>PityLoot</AssemblyName>
     <RootNamespace>PityLoot</RootNamespace>
     <!-- Single source of the mod version: ModMetadata reads it from the assembly, the release zip is named after it -->
-    <Version>2.0.0</Version>
+    <Version>1.0.0</Version>
     <!-- SPT 4.1.6 is not on NuGet (latest is 4.1.2), so build against the install's own DLLs -->
     <SptRuntime Condition="'$(SptRuntime)' == ''">C:\SPT\SPT_Runtime</SptRuntime>
     <SptModDir>$(SptRuntime)\user\mods\PityLoot</SptModDir>
