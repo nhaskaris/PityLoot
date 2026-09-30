@@ -3,13 +3,18 @@ using HarmonyLib;
 using PityLoot.Logic;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Reflection.Patching;
+#if SPT40
+using SPTarkov.Server.Core.Generators;
+using SPTarkov.Server.Core.Services;
+#else
 using SPTarkov.Server.Core.Generators.Bot;
 using SPTarkov.Server.Core.Generators.Loot;
+using SPTarkov.Server.Core.Services.InRaid;
+#endif
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
 using SPTarkov.Server.Core.Models.Spt.Bots;
-using SPTarkov.Server.Core.Services.InRaid;
 using SPTarkov.Server.Core.Utils.Collections;
 
 namespace PityLoot.Spt;
@@ -40,7 +45,7 @@ public static class ActiveLootContext
 }
 
 /// <summary>Sets the player's boost before map loot is generated and clears it afterwards.</summary>
-[Injectable(InjectionType.Transient, int.MaxValue)]
+[Injectable(InjectionType.Transient)]
 public class GenerateLocationAndLootPatch : AbstractPatch
 {
     protected override MethodBase GetTargetMethod()
@@ -77,7 +82,7 @@ public class GenerateLocationAndLootPatch : AbstractPatch
 }
 
 /// <summary>Scales loose loot item weights. The LooseLoot passed in is a fresh copy (LazyLoad without caching), so mutating it is safe.</summary>
-[Injectable(InjectionType.Transient, int.MaxValue)]
+[Injectable(InjectionType.Transient)]
 public class GenerateDynamicLootPatch : AbstractPatch
 {
     protected override MethodBase GetTargetMethod()
@@ -126,7 +131,7 @@ public class GenerateDynamicLootPatch : AbstractPatch
 }
 
 /// <summary>Scales static ammo weights. staticAmmoDist is cloned per raid by GenerateLocationLoot.</summary>
-[Injectable(InjectionType.Transient, int.MaxValue)]
+[Injectable(InjectionType.Transient)]
 public class GenerateStaticContainersPatch : AbstractPatch
 {
     protected override MethodBase GetTargetMethod()
@@ -162,7 +167,7 @@ public class GenerateStaticContainersPatch : AbstractPatch
 /// Re-weights a static container's possible loot, and injects missing gunsmith parts / quest keys into the
 /// matching containers (weight 999, as in the TypeScript mod). Works on the returned list, never on DB data.
 /// </summary>
-[Injectable(InjectionType.Transient, int.MaxValue)]
+[Injectable(InjectionType.Transient)]
 public class GetPossibleLootItemsForContainerPatch : AbstractPatch
 {
     private const float InjectedProbability = 999;
@@ -233,7 +238,7 @@ public class GetPossibleLootItemsForContainerPatch : AbstractPatch
 /// so botJsonTemplate is safe to mutate. Note: mods that replace bot inventory generation
 /// (e.g. APBS) may ignore some of these weights.
 /// </summary>
-[Injectable(InjectionType.Transient, int.MaxValue)]
+[Injectable(InjectionType.Transient)]
 public class GenerateBotPatch : AbstractPatch
 {
     protected override MethodBase GetTargetMethod()

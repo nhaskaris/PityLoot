@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- SPT 4.0.x build of PityLoot. Compiles the same sources as src/PityLoot with SPT40 defined for the API differences. -->
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>PityLoot</AssemblyName>
+    <RootNamespace>PityLoot</RootNamespace>
+    <DefineConstants>$(DefineConstants);SPT40</DefineConstants>
+    <Version>$(PityLootVersion)-4.0</Version>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <SptRoot Condition="'$(SptRoot)' == ''">C:\SPT-4.0\SPT</SptRoot>
+    <SptModDir>$(SptRoot)\user\mods\PityLoot</SptModDir>
+    <SharedDir>..\PityLoot</SharedDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(SharedDir)\**\*.cs" Exclude="$(SharedDir)\bin\**;$(SharedDir)\obj\**" />
+    <ConfigFiles Include="$(SharedDir)\config\*.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="SPTarkov.Server.Core" HintPath="$(SptRoot)\SPTarkov.Server.Core.dll" Private="false" />
+    <Reference Include="SPTarkov.DI" HintPath="$(SptRoot)\SPTarkov.DI.dll" Private="false" />
+    <Reference Include="SPTarkov.Common" HintPath="$(SptRoot)\SPTarkov.Common.dll" Private="false" />
+    <Reference Include="SPTarkov.Reflection" HintPath="$(SptRoot)\SPTarkov.Reflection.dll" Private="false" />
+    <Reference Include="0Harmony" HintPath="$(SptRoot)\0Harmony.dll" Private="false" />
+    <Reference Include="SemanticVersioning" HintPath="$(SptRoot)\SemanticVersioning.dll" Private="false" />
+  </ItemGroup>
+
+  <!-- Drop the build into the SPT 4.0 install. config.json is only copied when missing so user edits survive rebuilds. -->
+  <Target Name="CopyToSptMods" AfterTargets="Build" Condition="Exists('$(SptRoot)\SPTarkov.Server.Core.dll')">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SptModDir)" SkipUnchangedFiles="true" Retries="0" ContinueOnError="WarnAndContinue" />
+    <Copy SourceFiles="$(SharedDir)\config\questKeys.json;$(SharedDir)\config\gunsmith.json" DestinationFolder="$(SptModDir)\config" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(SharedDir)\config\config.json" DestinationFolder="$(SptModDir)\config" Condition="!Exists('$(SptModDir)\config\config.json')" />
+    <Message Importance="high" Text="PityLoot (SPT 4.0) copied to $(SptModDir)" />
+  </Target>
+
+  <!-- Release builds also produce dist/PityLoot-<version>-4.0.zip, laid out to extract into the SPT 4.0 game folder -->
+  <Target Name="PackageRelease" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <PropertyGroup>
+      <DistDir>$(MSBuildProjectDirectory)\..\..\dist</DistDir>
+      <StageDir>$(BaseIntermediateOutputPath)package</StageDir>
+      <StageModDir>$(StageDir)\SPT\user\mods\PityLoot</StageModDir>
+    </PropertyGroup>
+    <RemoveDir Directories="$(StageDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(StageModDir)" />
+    <Copy SourceFiles="@(ConfigFiles)" DestinationFolder="$(StageModDir)\config" />
+    <!-- MIT requires the copyright/permission notice to ship with copies -->
+    <Copy SourceFiles="..\..\LICENSE;..\..\README.md" DestinationFolder="$(StageModDir)" />
+    <MakeDir Directories="$(DistDir)" />
+    <ZipDirectory SourceDirectory="$(StageDir)" DestinationFile="$(DistDir)\PityLoot-$(Version).zip" Overwrite="true" />
+    <Message Importance="high" Text="Release zip: $([System.IO.Path]::GetFullPath('$(DistDir)\PityLoot-$(Version).zip'))" />
+  </Target>
+
+</Project>

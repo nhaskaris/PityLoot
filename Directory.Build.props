@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <!-- Mod version for all builds. SPT 4.1 ships as this version, SPT 4.0 as "<version>-4.0" (sorts below it, so 4.1 stays "latest"). -->
+    <PityLootVersion>1.0.0</PityLootVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+</Project>

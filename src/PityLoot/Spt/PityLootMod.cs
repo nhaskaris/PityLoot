@@ -4,7 +4,7 @@ using SPTarkov.Server.Core.DI;
 namespace PityLoot.Spt;
 
 /// <summary>Entry point: loads config and enables the Harmony patches.</summary>
-[Injectable(InjectionType.Transient, int.MaxValue, TypePriority = 100000)]
+[Injectable(InjectionType.Transient, TypePriority = 100000)]
 public class PityLootMod(
     PityLootService service,
     GenerateLocationAndLootPatch generateLocationAndLootPatch,
@@ -13,7 +13,11 @@ public class PityLootMod(
     GetPossibleLootItemsForContainerPatch getPossibleLootItemsForContainerPatch,
     GenerateBotPatch generateBotPatch) : IOnLoad
 {
+#if SPT40
+    public Task OnLoad()
+#else
     public Task OnLoadAsync(CancellationToken cancellationToken)
+#endif
     {
         service.Load();
         if (!service.Config.Enabled)

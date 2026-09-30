@@ -1,12 +1,21 @@
 using System.Reflection;
 using PityLoot.Logic;
-using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
-using SPTarkov.Server.Core.Helpers.Profile;
-using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Common;
 using SPTarkov.Server.Core.Models.Eft.Common;
+using SPTarkov.Server.Core.Models.Eft.Common.Tables;
+using SPTarkov.Server.Core.Models.Eft.Hideout;
+using Path = System.IO.Path;
+#if SPT40
+using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Models.Utils;
+using SPTarkov.Server.Core.Services;
+#else
+using SPTarkov.Common.Models.Logging;
+using SPTarkov.Server.Core.Helpers.Profile;
+using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Spt.Tables;
+#endif
 
 namespace PityLoot.Spt;
 
@@ -22,10 +31,22 @@ public record PityContext(
 public class PityLootService(
     ISptLogger<PityLootService> logger,
     ProfileHelper profileHelper,
+#if SPT40
+    DatabaseService databaseService,
+#else
     TemplateTable templateTable,
     HideoutTable hideoutTable,
+#endif
     ModHelper modHelper)
 {
+#if SPT40
+    private IEnumerable<Quest> DbQuests => databaseService.GetQuests().Values;
+    private IEnumerable<HideoutArea> DbHideoutAreas => databaseService.GetHideout().Areas;
+#else
+    private IEnumerable<Quest> DbQuests => templateTable.Quests.Values;
+    private IEnumerable<HideoutArea> DbHideoutAreas => hideoutTable.Areas;
+#endif
+
     private const string LogPrefix = "[PityLoot] ";
 
     private readonly Dictionary<string, PityContext> _contextBySession = new();
@@ -72,12 +93,12 @@ public class PityLootService(
     }
 
     private Dictionary<string, QuestDef> Quests =>
-        _quests ??= templateTable.Quests.Values.Select(SptMapper.Quest).ToDictionary(q => q.Id);
+        _quests ??= DbQuests.Select(SptMapper.Quest).ToDictionary(q => q.Id);
 
     private List<HideoutUpgradeInfo> PossibleHideoutUpgrades(PmcData pmc)
     {
         return HideoutPlanner.GetPossibleHideoutUpgrades(
-            hideoutTable.Areas.Select(SptMapper.HideoutArea),
+            DbHideoutAreas.Select(SptMapper.HideoutArea),
             SptMapper.HideoutProfile(pmc),
             Warning);
     }

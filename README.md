@@ -1,12 +1,12 @@
 # PityLoot
 
-A server mod for SPT 4.1 (Single Player Tushonka) that makes the items you **need** easier to find the longer you go without them.
+A server mod for SPT 4.1 (Single Player Tushonka) and SPT 4.0 that makes the items you **need** easier to find the longer you go without them.
 
 Like playing hardcore Tarkov, but tired of never finding the items you need for quests or the hideout? Or playing without the flea market and don't want to hoard *every* item you might need later? PityLoot progressively raises the loot odds for items you need, based on the number of raids since you started the task, or on real-world hours since you started it.
 
 Loot stays random; needed items just get more likely over time.
 
-This is a fork of Bakahashi's PityLoot for SPT 3.x, rewritten in C# for SPT 4.1 with the same behavior and config.
+This is a fork of Bakahashi's PityLoot for SPT 3.x, rewritten in C# for SPT 4.x with the same behavior and config.
 
 ## What counts as "needed"
 
@@ -28,14 +28,22 @@ Items already in your stash are counted against these requirements, found-in-rai
 
 ## Installation
 
-1. Download `PityLoot-<version>.zip`.
-2. Extract it into your SPT root folder (the folder that contains `SPT_Runtime`).
-3. You should now have `SPT_Runtime/user/mods/PityLoot/PityLoot.dll`.
-4. Start the server. You should see `[PityLoot] Loot patches enabled` in the console.
+There are two downloads. Pick the one matching your SPT version:
+
+| Your SPT version | Download | Extracts to |
+|---|---|---|
+| SPT 4.1.x (Single Player Tushonka) | `PityLoot-<version>.zip` | `SPT_Runtime/user/mods/PityLoot/` |
+| SPT 4.0.x | `PityLoot-<version>-4.0.zip` | `SPT/user/mods/PityLoot/` |
+
+1. Extract the zip into your game folder (the folder that contains `SPT_Runtime` on 4.1, or `SPT` on 4.0).
+2. Check that `PityLoot.dll` ended up in the mod folder from the table above.
+3. Start the server. You should see `[PityLoot] Loot patches enabled` in the console.
+
+The mod folder is `SPT_Runtime/user/mods/PityLoot` on 4.1 and `SPT/user/mods/PityLoot` on 4.0. Paths below are relative to it.
 
 ## Configuration
 
-Edit `SPT_Runtime/user/mods/PityLoot/config/config.json` and restart the server.
+Edit `config/config.json` in the mod folder and restart the server.
 
 | Option | Default | Description |
 |---|---|---|
@@ -58,17 +66,18 @@ Edit `SPT_Runtime/user/mods/PityLoot/config/config.json` and restart the server.
 | `wishlistMultipliers` | `5.0` each | Multiplier per wishlist category (`tasks`, `hideout`, `barter`, `equipment`, `other`). |
 | `excludeCollector` | `false` | Ignore the Collector quest. |
 
-Your raid counters are stored per profile in `SPT_Runtime/user/mods/PityLoot/database/pityTracker.json`. Delete it to reset all pity.
+Your raid counters are stored per profile in `database/pityTracker.json` in the mod folder. Delete it to reset all pity.
 
 ## Compatibility
 
-- Built for SPT 4.1.x (tested on 4.1.6).
+- SPT 4.1.x (tested on 4.1.6) and SPT 4.0.x (tested on 4.0.13). Both downloads have the same features and config.
+- Daily and weekly quests are counted but their items are not boosted yet.
 - Does not modify the database or your profile; all changes are applied to per-raid copies of the loot tables.
 - Mods that replace bot inventory generation (for example Acid's Progressive Bot System) build bot gear from their own data, so the bot gear boost may have no effect with them installed. Map loot is unaffected.
 
 ## Credits
 
-- **EliteOneTube:** SPT 4.1 C# rewrite.
+- **EliteOneTube:** SPT 4.x C# rewrite.
 - **Bakahashi:** original PityLoot for SPT 3.x.
 
 ## License
